@@ -67,7 +67,31 @@
 // console.log(undefined + 1);
 // console.log(" \t \n" - 2);
 
-let height = null;
-let width = null;
-let area = height ?? 100 * width ?? 50;
-console.log(area);
+// let height = null;
+// let width = null;
+// let area = height ?? 100 * width ?? 50;
+// console.log(area);
+
+function temp(name, age = 20) {
+  console.log(name, age);
+}
+
+temp("Moulee");
+
+function noReturn() {}
+
+console.log(noReturn());
+
+function returnValue() {
+  // return "Hello, World!";
+  return;
+  ("Hello");
+}
+console.log(returnValue());
+
+let sum = (a, b) => {
+  let c = 3;
+  return a + b * c;
+};
+
+console.log(sum(5, 6));
