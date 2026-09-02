@@ -45,3 +45,6 @@ let employee = {
 };
 
 console.log(employee);
+
+console.log(0.1 + 0.2);
+console.log(`Hello`.length);
