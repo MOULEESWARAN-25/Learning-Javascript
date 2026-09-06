@@ -229,14 +229,14 @@
 
 // loadUserData();
 
-function getUser() {
+async function getUser() {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve("Arun");
-    }, 2000);
+    }, 1000);
   });
 }
 
 const result = await getUser();
-
+console.log("Function called");
 console.log(result);
