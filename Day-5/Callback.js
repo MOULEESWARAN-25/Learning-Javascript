@@ -230,11 +230,10 @@
 // loadUserData();
 
 async function getUser() {
-  return new Promise((resolve) => {
     setTimeout(() => {
       resolve("Arun");
     }, 1000);
-  });
+
 }
 
 const result = await getUser();

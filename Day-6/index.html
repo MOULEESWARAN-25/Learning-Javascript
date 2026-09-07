@@ -1,0 +1,664 @@
+<!doctype html>
+
+<html>
+  <head>
+    <title>Day 6: Browser Networking Lab</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #17202a;
+        --muted: #5d6d7e;
+        --paper: #f7f3eb;
+        --panel: #fffdf8;
+        --line: #d9d0c2;
+        --accent: #c24b2a;
+        --accent-dark: #813018;
+        --code: #202a33;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at 10% 0%, #f1d6ad, transparent 32rem),
+          var(--paper);
+        color: var(--ink);
+        font:
+          16px/1.55 Georgia,
+          serif;
+      }
+      main {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 48px 20px 80px;
+      }
+      h1,
+      h2,
+      h3,
+      button,
+      input {
+        font-family: "Trebuchet MS", sans-serif;
+      }
+      h1 {
+        max-width: 720px;
+        margin: 0 0 12px;
+        font-size: clamp(2.4rem, 7vw, 5rem);
+        line-height: 0.98;
+        letter-spacing: 0;
+      }
+      h2 {
+        margin: 0 0 8px;
+        font-size: 1.45rem;
+      }
+      h3 {
+        margin-bottom: 4px;
+      }
+      .intro {
+        max-width: 700px;
+        color: var(--muted);
+        font-size: 1.1rem;
+      }
+      section {
+        margin-top: 28px;
+        padding: 24px;
+        background: color-mix(in srgb, var(--panel) 90%, transparent);
+        border: 1px solid var(--line);
+        border-left: 5px solid var(--accent);
+        border-radius: 8px;
+        box-shadow: 0 8px 24px #503c2410;
+      }
+      .hint {
+        margin: 4px 0 16px;
+        color: var(--muted);
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+      }
+      button {
+        border: 0;
+        border-radius: 4px;
+        padding: 10px 14px;
+        background: var(--accent);
+        color: white;
+        cursor: pointer;
+        font-weight: bold;
+      }
+      button:hover {
+        background: var(--accent-dark);
+      }
+      button.secondary {
+        background: #52616b;
+      }
+      input {
+        min-width: 180px;
+        padding: 9px;
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        background: white;
+      }
+      pre,
+      output {
+        display: block;
+        width: 100%;
+        min-height: 44px;
+        margin: 16px 0 0;
+        padding: 14px;
+        overflow-x: auto;
+        white-space: pre-wrap;
+        background: var(--code);
+        color: #d9f5d0;
+        border-radius: 4px;
+        font:
+          14px/1.5 Monaco,
+          Consolas,
+          monospace;
+      }
+      progress {
+        width: 100%;
+        height: 20px;
+        accent-color: var(--accent);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 18px;
+      }
+      code {
+        color: var(--accent-dark);
+      }
+      .tag {
+        display: inline-block;
+        padding: 3px 7px;
+        background: #f2dfc5;
+        color: var(--accent-dark);
+        font: bold 12px sans-serif;
+        text-transform: uppercase;
+      }
+      @media (max-width: 600px) {
+        section {
+          padding: 18px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <span class="tag">Day 6 / Browser networking</span>
+      <h1>Requests are conversations.</h1>
+      <p class="intro">
+        Run each example, read the request and response, then change the code in
+        this file. Open DevTools → Network when you want to see the same
+        conversation in detail.
+      </p>
+
+      <section>
+        <h2>1. Fetch: the modern promise-based request</h2>
+        <p class="hint">
+          <code>fetch()</code> resolves when headers arrive. Read the body with
+          <code>response.json()</code> or <code>response.text()</code>, and
+          check <code>response.ok</code> yourself.
+        </p>
+        <button onclick="runFetch()">GET JSON with fetch</button>
+        <output id="fetchOutput">Nothing requested yet.</output>
+      </section>
+
+      <section>
+        <h2>2. FormData: send fields and a file</h2>
+        <p class="hint">
+          Do not set <code>Content-Type</code> manually. The browser adds the
+          multipart boundary for a <code>FormData</code> request.
+        </p>
+        <form id="formExample">
+          <div class="row">
+            <input name="student" value="Ada" aria-label="Student name" /><input
+              name="lessonFile"
+              type="file"
+              aria-label="Lesson file"
+            /><button>Send FormData</button>
+          </div>
+        </form>
+        <output id="formOutput">Choose a file or submit the text field.</output>
+      </section>
+
+      <section>
+        <h2>3. Download progress with a readable stream</h2>
+        <p class="hint">
+          Fetch has no <code>onprogress</code>. Read chunks from
+          <code>response.body</code> and calculate progress from
+          <code>Content-Length</code>.
+        </p>
+        <button onclick="downloadWithProgress()">Download slowly</button>
+        <progress id="downloadProgress" value="0" max="100"></progress>
+        <output id="downloadOutput">0%</output>
+      </section>
+
+      <section>
+        <h2>4. Abort a request</h2>
+        <p class="hint">
+          An <code>AbortController</code> owns a signal. Pass that signal to
+          fetch, then call <code>controller.abort()</code>.
+        </p>
+        <div class="row">
+          <button onclick="startAbortableFetch()">Start 5-second request</button
+          ><button class="secondary" onclick="abortFetch()">Abort it</button>
+        </div>
+        <output id="abortOutput">Idle.</output>
+      </section>
+
+      <section>
+        <h2>5. Cross-Origin Requests (CORS)</h2>
+        <p class="hint">
+          The server opts into browser access with
+          <code>Access-Control-Allow-Origin</code>. CORS is enforced by
+          browsers; it is not an authentication mechanism.
+        </p>
+        <button onclick="runCors()">Fetch the CORS-enabled endpoint</button>
+        <output id="corsOutput">Nothing requested yet.</output>
+      </section>
+
+      <section>
+        <h2>6. URL objects and URLSearchParams</h2>
+        <p class="hint">
+          Use URL APIs for encoding and query parameters instead of
+          concatenating strings by hand.
+        </p>
+        <div class="row">
+          <input
+            id="searchInput"
+            value="URL objects"
+            aria-label="Search term"
+          /><button onclick="runUrlExample()">Build URL and fetch</button>
+        </div>
+        <output id="urlOutput">Nothing requested yet.</output>
+      </section>
+
+      <section>
+        <h2>7. XMLHttpRequest: the older event-based API</h2>
+        <p class="hint">
+          XHR is still useful when you need upload progress. Its lifecycle is
+          callback/event based rather than promise based.
+        </p>
+        <button onclick="runXhr()">GET JSON with XHR</button>
+        <output id="xhrOutput">Nothing requested yet.</output>
+      </section>
+
+      <section>
+        <h2>8. Resumable file upload</h2>
+        <p class="hint">
+          The client creates a session, sends byte slices with an offset, and
+          asks the server for the current offset before continuing.
+        </p>
+        <input
+          id="resumeFile"
+          type="file"
+          aria-label="File to upload in chunks"
+        />
+        <button onclick="resumeUpload()">Upload in 64 KB chunks</button>
+        <progress id="uploadProgress" value="0" max="100"></progress>
+        <output id="uploadOutput">Choose a file to begin.</output>
+      </section>
+
+      <!--
+      <section>
+        <h2>Earlier Day 6 examples</h2>
+        <p class="hint">These use different browser communication models: WebSocket is two-way, while SSE is server-to-browser.</p>
+        <div class="grid"><div><button onclick="connectWebSocket()">Connect WebSocket</button><button onclick="sendMessage()">Send message</button><button class="secondary" onclick="disconnectWebSocket()">Disconnect</button></div><div><button onclick="connectSSE()">Connect SSE</button><button class="secondary" onclick="disconnectSSE()">Disconnect</button></div></div>
+        <output id="liveOutput">No live connection activity yet.</output>
+      </section>
+      -->
+    </main>
+    <script>
+      const $ = (id) => document.getElementById(id);
+      const show = (id, value) => {
+        $(id).textContent =
+          typeof value === "string" ? value : JSON.stringify(value, null, 2);
+      };
+      let abortController;
+
+      async function runFetch() {
+        const response = await fetch("/api/data");
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        show("fetchOutput", await response.json());
+      }
+
+      $("formExample").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const response = await fetch("/api/form", {
+          method: "POST",
+          body: new FormData(event.currentTarget),
+        });
+        show("formOutput", await response.json());
+      });
+
+      async function downloadWithProgress() {
+        const response = await fetch("/api/download");
+        const total = Number(response.headers.get("Content-Length"));
+        const reader = response.body.getReader();
+        let received = 0;
+        let text = "";
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          received += value.length;
+          text += new TextDecoder().decode(value);
+          $("downloadProgress").value = (received / total) * 100;
+          show(
+            "downloadOutput",
+            `${Math.round((received / total) * 100)}%\n${text}`,
+          );
+        }
+      }
+
+      async function startAbortableFetch() {
+        abortController = new AbortController();
+        show("abortOutput", "Request started...");
+        try {
+          const response = await fetch("/api/slow", {
+            signal: abortController.signal,
+          });
+          show("abortOutput", await response.json());
+        } catch (error) {
+          show(
+            "abortOutput",
+            error.name === "AbortError"
+              ? "Request was aborted."
+              : error.message,
+          );
+        }
+      }
+      function abortFetch() {
+        if (abortController) abortController.abort();
+      }
+
+      async function runCors() {
+        show("corsOutput", await (await fetch("/api/cors")).json());
+      }
+      async function runUrlExample() {
+        const url = new URL("/api/search", location.origin);
+        url.searchParams.set("query", $("searchInput").value);
+        show(
+          "urlOutput",
+          `${url}\n\n${JSON.stringify(await (await fetch(url)).json(), null, 2)}`,
+        );
+      }
+
+      function runXhr() {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", "/api/data");
+        xhr.onload = () => show("xhrOutput", JSON.parse(xhr.responseText));
+        xhr.onerror = () => show("xhrOutput", "Network error");
+        xhr.send();
+      }
+
+      async function resumeUpload() {
+        const file = $("resumeFile").files[0];
+        if (!file) return show("uploadOutput", "Select a file first.");
+        const session = await (
+          await fetch("/api/upload/start", { method: "POST" })
+        ).json();
+        let offset = session.offset;
+        const chunkSize = 64 * 1024;
+        while (offset < file.size) {
+          const chunk = file.slice(offset, offset + chunkSize);
+          const response = await fetch(`/api/upload/${session.id}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/octet-stream",
+              "X-Start-Byte": String(offset),
+            },
+            body: chunk,
+          });
+          if (!response.ok) throw new Error(await response.text());
+          offset = (await response.json()).offset;
+          $("uploadProgress").value = (offset / file.size) * 100;
+          show("uploadOutput", `${offset} / ${file.size} bytes uploaded`);
+        }
+        show("uploadOutput", `Complete: ${file.name} (${file.size} bytes)`);
+      }
+
+      /* let socket; let eventSource;
+      function live(message) { $("liveOutput").textContent += `${new Date().toLocaleTimeString()} ${message}\n`; }
+      function connectWebSocket() { socket = new WebSocket(`ws://${location.host}`); socket.onopen = () => live("WebSocket connected"); socket.onmessage = (event) => live(`WebSocket: ${event.data}`); socket.onclose = () => live("WebSocket closed"); }
+      function sendMessage() { if (socket?.readyState === WebSocket.OPEN) socket.send("Hello from the browser"); else live("Connect WebSocket first"); }
+      function disconnectWebSocket() { socket?.close(); }
+      function connectSSE() { eventSource = new EventSource("/events"); eventSource.onmessage = (event) => live(`SSE: ${event.data}`); eventSource.onerror = () => live("SSE error or disconnected"); }
+      function disconnectSSE() { eventSource?.close(); eventSource = null; live("SSE closed"); }
+      */
+    </script>
+  </body>
+</html>
+
+<!--
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 20px;
+      }
+
+      button {
+        padding: 10px 15px;
+        margin: 5px;
+        cursor: pointer;
+      }
+
+      input {
+        padding: 10px;
+        width: 300px;
+      }
+
+      .status {
+        font-size: 24px;
+        font-weight: bold;
+        margin: 20px 0;
+      }
+
+      .connected {
+        color: green;
+      }
+
+      .disconnected {
+        color: red;
+      }
+
+      .log {
+        background: #111;
+        color: #00ff00;
+        padding: 15px;
+        height: 350px;
+        overflow-y: auto;
+        font-family: monospace;
+      }
+
+      .box {
+        border: 1px solid #ccc;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 10px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>WebSocket and SSE Demo</h1>
+
+    <div class="box">
+      <h2>Connection</h2>
+
+      <div id="status" class="status disconnected">DISCONNECTED</div>
+
+      <button onclick="connectWebSocket()">Connect</button>
+
+      <button onclick="disconnectWebSocket()">Disconnect</button>
+    </div>
+
+    <div class="box">
+      <h2>Send Message</h2>
+
+      <input id="messageInput" placeholder="Enter message" />
+
+      <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <div class="box">
+      <h2>Server-Sent Events</h2>
+
+      <div id="sseStatus" class="status disconnected">DISCONNECTED</div>
+
+      <button onclick="connectSSE()">Connect SSE</button>
+
+      <button onclick="disconnectSSE()">Disconnect SSE</button>
+    </div>
+
+    <div class="box">
+      <h2>Communication Log</h2>
+
+      <div id="log" class="log"></div>
+    </div>
+
+    <script>
+      // ============================================================
+      // WEBSOCKET VARIABLE
+      // ============================================================
+
+      let socket = null;
+      let eventSource = null;
+
+      // ============================================================
+      // CONNECT
+      // ============================================================
+
+      function connectWebSocket() {
+        // Don't create another connection
+        if (socket && socket.readyState === WebSocket.OPEN) {
+          log("Already connected");
+
+          return;
+        }
+
+        log("→ Creating WebSocket connection...");
+
+        // --------------------------------------------------------
+        // THIS STARTS THE WHOLE PROCESS
+        // --------------------------------------------------------
+
+        socket = new WebSocket("ws://localhost:3000");
+
+        // --------------------------------------------------------
+        // CONNECTION OPENED
+        // --------------------------------------------------------
+
+        socket.onopen = () => {
+          log("✓ WebSocket connection OPEN");
+
+          const status = document.getElementById("status");
+
+          status.textContent = "CONNECTED";
+
+          status.className = "status connected";
+        };
+
+        // --------------------------------------------------------
+        // SERVER SENT MESSAGE
+        // --------------------------------------------------------
+
+        socket.onmessage = (event) => {
+          log("← Server: " + event.data);
+        };
+
+        // --------------------------------------------------------
+        // CONNECTION CLOSED
+        // --------------------------------------------------------
+
+        socket.onclose = () => {
+          log("✕ WebSocket connection CLOSED");
+
+          const status = document.getElementById("status");
+
+          status.textContent = "DISCONNECTED";
+
+          status.className = "status disconnected";
+        };
+
+        // --------------------------------------------------------
+        // ERROR
+        // --------------------------------------------------------
+
+        socket.onerror = (error) => {
+          log("⚠ WebSocket error");
+        };
+      }
+
+      // ============================================================
+      // SEND MESSAGE
+      // ============================================================
+
+      function sendMessage() {
+        if (!socket || socket.readyState !== WebSocket.OPEN) {
+          log("⚠ WebSocket is not connected");
+
+          return;
+        }
+
+        const input = document.getElementById("messageInput");
+
+        const message = input.value;
+
+        if (!message) {
+          return;
+        }
+
+        // --------------------------------------------------------
+        // SEND MESSAGE THROUGH WEBSOCKET
+        // --------------------------------------------------------
+
+        socket.send(message);
+
+        log("→ Browser: " + message);
+
+        input.value = "";
+      }
+
+      // ============================================================
+      // DISCONNECT
+      // ============================================================
+
+      function disconnectWebSocket() {
+        if (!socket) {
+          return;
+        }
+
+        log("→ Closing WebSocket connection...");
+
+        socket.close();
+      }
+
+      // ============================================================
+      // SERVER-SENT EVENTS
+      // ============================================================
+
+      function connectSSE() {
+        if (eventSource) {
+          log("SSE is already connected");
+
+          return;
+        }
+
+        log("→ Creating SSE connection...");
+
+        eventSource = new EventSource("http://localhost:3000/events");
+
+        eventSource.onopen = () => {
+          log("✓ SSE connection OPEN");
+
+          const status = document.getElementById("sseStatus");
+          status.textContent = "CONNECTED";
+          status.className = "status connected";
+        };
+
+        eventSource.onmessage = (event) => {
+          log("← SSE server: " + event.data);
+        };
+
+        eventSource.onerror = () => {
+          log("⚠ SSE connection error");
+        };
+      }
+
+      function disconnectSSE() {
+        if (!eventSource) {
+          return;
+        }
+
+        eventSource.close();
+        eventSource = null;
+
+        log("✕ SSE connection CLOSED");
+
+        const status = document.getElementById("sseStatus");
+        status.textContent = "DISCONNECTED";
+        status.className = "status disconnected";
+      }
+
+      // ============================================================
+      // LOG
+      // ============================================================
+
+      function log(message) {
+        const logElement = document.getElementById("log");
+
+        const time = new Date().toLocaleTimeString();
+
+        logElement.innerHTML += `[${time}] ${message}<br>`;
+
+        logElement.scrollTop = logElement.scrollHeight;
+      }
+    </script>
+  </body>
+</html>
+-->
