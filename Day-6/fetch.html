@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fetch Field Notes | Day 6</title>
+    <style>
+      :root {
+        --ink: #17242b;
+        --muted: #63717a;
+        --paper: #f4f0e7;
+        --panel: #fffdf8;
+        --line: #d8d1c4;
+        --teal: #0b7770;
+        --coral: #dd654e;
+        --yellow: #f0c45d;
+        --shadow: 0 18px 45px rgba(31, 42, 43, 0.1);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        color: var(--ink);
+        background: var(--paper);
+        font-family: Georgia, "Times New Roman", serif;
+        line-height: 1.5;
+      }
+      header {
+        padding: 3rem max(1.25rem, calc((100vw - 1180px) / 2));
+        background: #183d43;
+        color: #fffdf8;
+        border-bottom: 8px solid var(--coral);
+      }
+      header p {
+        max-width: 700px;
+        color: #d8e5df;
+        font-size: 1.1rem;
+      }
+      .eyebrow {
+        color: var(--yellow);
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font:
+          700 0.75rem/1.2 Arial,
+          sans-serif;
+      }
+      h1,
+      h2 {
+        margin: 0;
+        line-height: 1.1;
+      }
+      h1 {
+        max-width: 700px;
+        font-size: clamp(2.4rem, 6vw, 5.5rem);
+        font-weight: 500;
+      }
+      main {
+        width: min(1180px, calc(100% - 2.5rem));
+        margin: 2rem auto 5rem;
+      }
+      .toolbar {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      }
+      .status {
+        color: var(--muted);
+        font:
+          0.9rem Arial,
+          sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.25rem;
+      }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        box-shadow: var(--shadow);
+        padding: 1.35rem;
+      }
+      .card.wide {
+        grid-column: 1 / -1;
+      }
+      .card h2 {
+        font-size: 1.45rem;
+        margin-bottom: 0.35rem;
+      }
+      .card p {
+        color: var(--muted);
+        margin: 0.35rem 0 1rem;
+      }
+      .method {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        color: white;
+        background: var(--teal);
+        font:
+          700 0.7rem Arial,
+          sans-serif;
+        letter-spacing: 0.08em;
+      }
+      .method.write {
+        background: var(--coral);
+      }
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        align-items: center;
+      }
+      input,
+      textarea,
+      button {
+        font: inherit;
+      }
+      input,
+      textarea {
+        width: 100%;
+        padding: 0.7rem;
+        border: 1px solid var(--line);
+        background: #fff;
+        color: var(--ink);
+      }
+      textarea {
+        min-height: 92px;
+        resize: vertical;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 0.82rem;
+      }
+      .controls input {
+        flex: 1 1 180px;
+        width: auto;
+      }
+      button {
+        border: 0;
+        padding: 0.7rem 1rem;
+        background: var(--ink);
+        color: #fff;
+        cursor: pointer;
+        font-weight: 700;
+      }
+      button:hover {
+        background: var(--teal);
+      }
+      button:disabled {
+        opacity: 0.55;
+        cursor: wait;
+      }
+      .result {
+        margin-top: 1rem;
+        min-height: 74px;
+        padding: 0.85rem;
+        overflow: auto;
+        background: #17242b;
+        color: #d9eee5;
+        white-space: pre-wrap;
+        font:
+          0.78rem/1.55 ui-monospace,
+          SFMono-Regular,
+          Menlo,
+          monospace;
+      }
+      .request-line {
+        color: var(--yellow);
+      }
+      .hint {
+        font-size: 0.82rem;
+        color: var(--muted);
+      }
+      @media (max-width: 760px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        .card.wide {
+          grid-column: auto;
+        }
+        .toolbar {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="eyebrow">Day 6 / JavaScript networking</div>
+      <h1>Fetch field notes.</h1>
+      <p>
+        Run the requests, inspect the result, then read the matching pattern in
+        this file. Every example uses the same useful rhythm: build the request,
+        await the response, check <code>response.ok</code>, then parse the body.
+      </p>
+    </header>
+    <main>
+      <div class="toolbar">
+        <strong>Live request lab</strong
+        ><span id="serverStatus" class="status">Checking local server...</span>
+      </div>
+      <section class="grid">
+        <article class="card">
+          <span class="method">GET JSON</span>
+          <h2>Read data</h2>
+          <p>Parse a JSON response with <code>response.json()</code>.</p>
+          <button data-run="getData">Fetch server data</button>
+          <pre id="getDataResult" class="result">No request yet.</pre>
+        </article>
+        <article class="card">
+          <span class="method">GET + QUERY</span>
+          <h2>Search with params</h2>
+          <p>Build a query string with <code>URLSearchParams</code>.</p>
+          <div class="controls">
+            <input
+              id="searchText"
+              value="fetch"
+              aria-label="Search term"
+            /><button data-run="search">Search</button>
+          </div>
+          <pre id="searchResult" class="result">No request yet.</pre>
+        </article>
+        <article class="card">
+          <span class="method write">POST JSON</span>
+          <h2>Send JSON</h2>
+          <p>
+            JSONPlaceholder echoes write requests, which is useful for learning
+            request options.
+          </p>
+          <textarea id="jsonBody">
+{
+  "title": "Learning fetch",
+  "body": "A request can have headers and a JSON body.",
+  "userId": 1
+}</textarea
+          >
+          <button data-run="postJson">POST to JSONPlaceholder</button>
+          <pre id="postJsonResult" class="result">No request yet.</pre>
+        </article>
+        <article class="card">
+          <span class="method write">PUT / PATCH / DELETE</span>
+          <h2>Update and remove</h2>
+          <p>
+            These methods use the same <code>fetch(url, options)</code> shape.
+          </p>
+          <div class="controls">
+            <button data-run="put">PUT</button
+            ><button data-run="patch">PATCH</button
+            ><button data-run="delete">DELETE</button>
+          </div>
+          <pre id="mutationsResult" class="result">No request yet.</pre>
+        </article>
+        <article class="card">
+          <span class="method write">FORMDATA</span>
+          <h2>Send a form and file</h2>
+          <p>
+            Do not manually set the <code>Content-Type</code> for
+            <code>FormData</code>; the browser adds the boundary.
+          </p>
+          <input
+            id="lessonName"
+            value="Fetch student"
+            aria-label="Student name"
+          />
+          <input id="lessonFile" type="file" aria-label="Choose a file" />
+          <button data-run="form">Submit multipart form</button>
+          <pre id="formResult" class="result">No request yet.</pre>
+        </article>
+        <article class="card">
+          <span class="method">TEXT / BLOB</span>
+          <h2>Read other body types</h2>
+          <p>
+            Use <code>response.text()</code> for text and
+            <code>response.blob()</code> for files.
+          </p>
+          <div class="controls">
+            <button data-run="text">Read text stream</button
+            ><button data-run="blob">Read blob</button>
+          </div>
+          <pre id="bodyResult" class="result">No request yet.</pre>
+        </article>
+        <article class="card">
+          <span class="method">ABORT</span>
+          <h2>Cancel a slow request</h2>
+          <p>
+            <code>AbortController</code> lets a user or timeout stop work that
+            is no longer needed.
+          </p>
+          <div class="controls">
+            <button data-run="slow">Start 5-second request</button
+            ><button data-run="abort">Abort request</button>
+          </div>
+          <pre id="slowResult" class="result">No request yet.</pre>
+        </article>
+        <article class="card">
+          <span class="method">PARALLEL</span>
+          <h2>Run requests together</h2>
+          <p>
+            <code>Promise.all</code> waits for several independent requests.
+          </p>
+          <button data-run="parallel">Fetch three resources</button>
+          <pre id="parallelResult" class="result">No request yet.</pre>
+        </article>
+        <article class="card wide">
+          <span class="method write">CHUNKED UPLOAD</span>
+          <h2>Upload in stages</h2>
+          <p>
+            Start a session, send two binary chunks with an offset, then ask the
+            server how many bytes it has received.
+          </p>
+          <button data-run="upload">Run chunked upload</button>
+          <pre id="uploadResult" class="result">No request yet.</pre>
+        </article>
+      </section>
+    </main>
+    <script>
+      const localApi = "http://localhost:3000";
+      const externalApi = "https://jsonplaceholder.typicode.com";
+      let slowController;
+
+      function show(id, value, request = "") {
+        document.querySelector(`#${id}`).textContent =
+          request +
+          (request ? "\n\n" : "") +
+          (typeof value === "string" ? value : JSON.stringify(value, null, 2));
+      }
+
+      async function request(url, options = {}, outputId, parser = "json") {
+        const method = options.method || "GET";
+        show(outputId, "Loading...", `${method} ${url}`);
+        try {
+          const response = await fetch(url, options);
+          if (!response.ok)
+            throw new Error(`${response.status} ${response.statusText}`);
+          const body =
+            parser === "text"
+              ? await response.text()
+              : parser === "blob"
+                ? await response.blob()
+                : await response.json();
+          show(
+            outputId,
+            parser === "blob"
+              ? `Blob received: ${body.size} bytes (${body.type || "unknown type"})`
+              : body,
+            `${method} ${url} -> ${response.status}`,
+          );
+          return body;
+        } catch (error) {
+          show(outputId, `Error: ${error.message}`, `${method} ${url}`);
+          throw error;
+        }
+      }
+
+      async function run(name) {
+        if (name === "getData")
+          await request(`${localApi}/api/data`, {}, "getDataResult");
+        if (name === "search") {
+          const params = new URLSearchParams({
+            query: document.querySelector("#searchText").value,
+          });
+          await request(`${localApi}/api/search?${params}`, {}, "searchResult");
+        }
+        if (name === "postJson") {
+          await request(
+            `${externalApi}/posts`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+              },
+              body: document.querySelector("#jsonBody").value,
+            },
+            "postJsonResult",
+          );
+        }
+        if (["put", "patch", "delete"].includes(name)) {
+          const options = {
+            method: name.toUpperCase(),
+            headers: { "Content-Type": "application/json" },
+          };
+          if (name !== "delete")
+            options.body = JSON.stringify({
+              title: `Updated with ${name.toUpperCase()}`,
+            });
+          await request(`${externalApi}/posts/1`, options, "mutationsResult");
+        }
+        if (name === "form") {
+          const form = new FormData();
+          form.append("student", document.querySelector("#lessonName").value);
+          const file = document.querySelector("#lessonFile").files[0];
+          if (file) form.append("lessonFile", file);
+          await request(
+            `${localApi}/api/form`,
+            { method: "POST", body: form },
+            "formResult",
+          );
+        }
+        if (name === "text")
+          await request(`${localApi}/api/download`, {}, "bodyResult", "text");
+        if (name === "blob")
+          await request(`${localApi}/api/download`, {}, "bodyResult", "blob");
+        if (name === "slow") {
+          slowController = new AbortController();
+          await request(
+            `${localApi}/api/slow`,
+            { signal: slowController.signal },
+            "slowResult",
+          ).catch(() => {});
+        }
+        if (name === "abort" && slowController) slowController.abort();
+        if (name === "parallel") {
+          const results = await Promise.all([
+            fetch(`${localApi}/api/data`).then((response) => response.json()),
+            fetch(`${localApi}/api/search?query=parallel`).then((response) =>
+              response.json(),
+            ),
+            fetch(`${externalApi}/posts/1`).then((response) => response.json()),
+          ]);
+          show("parallelResult", results, "Promise.all -> 3 responses");
+        }
+        if (name === "upload") {
+          const session = await request(
+            `${localApi}/api/upload/start`,
+            { method: "POST" },
+            "uploadResult",
+          );
+          const first = new TextEncoder().encode("first chunk ");
+          const second = new TextEncoder().encode("second chunk");
+          const send = (chunk, offset) =>
+            fetch(`${localApi}/api/upload/${session.id}`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/octet-stream",
+                "X-Start-Byte": String(offset),
+              },
+              body: chunk,
+            }).then((response) => response.json());
+          await send(first, 0);
+          const final = await send(second, first.length);
+          const saved = await fetch(
+            `${localApi}/api/upload/${session.id}`,
+          ).then((response) => response.json());
+          show(
+            "uploadResult",
+            { session, finalChunk: final, serverOffset: saved.offset },
+            "POST chunks -> GET status",
+          );
+        }
+      }
+
+      document
+        .querySelectorAll("button[data-run]")
+        .forEach((button) =>
+          button.addEventListener("click", () => run(button.dataset.run)),
+        );
+      fetch(`${localApi}/api/data`)
+        .then((response) => {
+          document.querySelector("#serverStatus").textContent = response.ok
+            ? "Local API online at localhost:3000"
+            : "Local API returned an error";
+        })
+        .catch(() => {
+          document.querySelector("#serverStatus").textContent =
+            "Start the server with: npm start";
+        });
+    </script>
+  </body>
+</html>

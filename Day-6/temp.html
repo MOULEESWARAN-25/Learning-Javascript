@@ -1,0 +1,131 @@
+<!-- <div class="box background-box">I am behind</div>
+<div class="box foreground-box">I am in front</div>
+
+<style>
+  .box {
+    width: 200px;
+    height: 200px;
+    position: absolute; /* Crucial step: activates z-index capabilities */
+  }
+
+  .background-box {
+    background-color: red;
+    top: 60px;
+    left: 60px;
+    z-index: 1; /* Lower number goes to the back */
+  }
+
+  .foreground-box {
+    background-color: blue;
+    top: 50px;
+    left: 50px;
+    z-index: 2; /* Higher number comes to the front */
+  }
+</style> -->
+
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Image Upload Preview</title>
+    <style>
+      body {
+        max-width: 700px;
+        margin: 40px auto;
+        padding: 0 20px;
+        font-family: system-ui, sans-serif;
+        line-height: 1.5;
+      }
+
+      .preview-box {
+        min-height: 220px;
+        margin-top: 20px;
+        padding: 16px;
+        border: 2px dashed #999;
+        display: grid;
+        place-items: center;
+        background: #f5f5f5;
+      }
+
+      #preview {
+        display: none;
+        max-width: 100%;
+        max-height: 360px;
+      }
+
+      code {
+        overflow-wrap: anywhere;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Preview an uploaded image</h1>
+    <p>
+      Choose an image. It stays on your computer; JavaScript creates a temporary
+      URL so the browser can display it.
+    </p>
+
+    <input id="imageInput" type="file" accept="image/*" />
+
+    <div class="preview-box">
+      <p id="emptyMessage">Your image preview will appear here.</p>
+      <img id="preview" alt="Your selected image preview" />
+    </div>
+
+    <p id="fileDetails">No image selected.</p>
+    <p><strong>Temporary URL:</strong> <code id="urlDetails">None yet</code></p>
+
+    <hr />
+
+    <button id="downloadBtn">Download File</button>
+
+    <script>
+      const imageInput = document.querySelector("#imageInput");
+      const preview = document.querySelector("#preview");
+      const emptyMessage = document.querySelector("#emptyMessage");
+      const fileDetails = document.querySelector("#fileDetails");
+      const urlDetails = document.querySelector("#urlDetails");
+      let currentImageUrl;
+
+      imageInput.addEventListener("change", () => {
+        const file = imageInput.files[0];
+
+        if (!file) return;
+
+        // Release the previous temporary URL before creating another one.
+        if (currentImageUrl) URL.revokeObjectURL(currentImageUrl);
+
+        currentImageUrl = URL.createObjectURL(file);
+        preview.src = currentImageUrl;
+        preview.style.display = "block";
+        emptyMessage.style.display = "none";
+        fileDetails.textContent = `File: ${file.name} (${file.type}, ${file.size} bytes)`;
+        urlDetails.textContent = currentImageUrl;
+      });
+
+      document.getElementById("downloadBtn").onclick = () => {
+        // 1. Data we want to put into the file
+        const text = "Hello bro! This file was created using Blob.";
+
+        // 2. Create a Blob
+        const blob = new Blob([text], { type: "text/plain" });
+
+        // 3. Create a temporary URL for the Blob
+        const url = URL.createObjectURL(blob);
+
+        // 4. Create a temporary download link
+        const link = document.createElement("a");
+
+        link.href = url;
+        link.download = "hello.txt";
+
+        // 5. Trigger the download
+        link.click();
+
+        // 6. We don't need the temporary URL anymore
+        URL.revokeObjectURL(url);
+      };
+    </script>
+  </body>
+</html>

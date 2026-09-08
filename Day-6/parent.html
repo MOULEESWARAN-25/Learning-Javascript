@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+  <body>
+    <h2>Parent Page</h2>
+
+    <iframe src="child.html" id="child" style="width: 400px; height: 200px">
+    </iframe>
+
+    <button id="send">Send Message</button>
+
+    <script>
+      const child = document.getElementById("child");
+
+      document.getElementById("send").onclick = () => {
+        child.contentWindow.postMessage(
+          "Hello from Parent!",
+          "http://localhost:5500",
+        );
+      };
+    </script>
+  </body>
+</html>

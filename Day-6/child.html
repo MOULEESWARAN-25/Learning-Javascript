@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+  <body>
+    <h2>Child / iframe</h2>
+
+    <p id="message">Waiting for message...</p>
+
+    <script>
+      window.addEventListener("message", (event) => {
+        console.log("Message received:", event.data);
+
+        document.getElementById("message").textContent = event.data;
+      });
+    </script>
+  </body>
+</html>

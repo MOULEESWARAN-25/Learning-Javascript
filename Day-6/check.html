@@ -1,0 +1,47 @@
+<!-- <!doctype html>
+<html>
+  <head>
+    <title>Script Parsing Test</title>
+  </head>
+
+  <body>
+    <h1>Before Script</h1>
+    <script async src="app.js"></script>
+    <h1>After Script</h1>
+
+    <button id="btn1">Button 1</button>
+    <button id="btn2">Button 2</button>
+    <button id="btn3">Button 3</button> -->
+    <!-- <script src="app.js"></script> -->
+  <!-- </body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Async Test</title>
+</head>
+
+<body>
+
+    <h1>Before Script</h1>
+
+    <script async src="app.js"></script>
+
+    <div id="content"></div>
+
+    <script>
+        for (let i = 0; i < 100000; i++) {
+            const div = document.createElement("div");
+            div.textContent = "Loading " + i;
+            document.querySelector("#content").appendChild(div);
+        }
+    </script>
+
+    <button id="myButton">Click Me</button>
+
+    <h1>After Button</h1>
+
+</body>
+</html>

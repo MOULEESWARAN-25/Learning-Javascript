@@ -1,664 +1,1146 @@
-<!doctype html>
-
-<html>
+<!-- <!doctype html>
+<html lang="en">
   <head>
-    <title>Day 6: Browser Networking Lab</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Event Lab | JavaScript</title>
     <style>
       :root {
-        color-scheme: light;
-        --ink: #17202a;
-        --muted: #5d6d7e;
-        --paper: #f7f3eb;
+        --ink: #18232b;
+        --muted: #607078;
+        --paper: #f7f3ea;
         --panel: #fffdf8;
-        --line: #d9d0c2;
-        --accent: #c24b2a;
-        --accent-dark: #813018;
-        --code: #202a33;
+        --line: #d8d0c2;
+        --coral: #e76951;
+        --teal: #167d79;
+        --yellow: #f2c14e;
+        --shadow: 0 12px 30px rgba(30, 36, 38, 0.08);
       }
+
       * {
         box-sizing: border-box;
       }
       body {
         margin: 0;
-        background:
-          radial-gradient(circle at 10% 0%, #f1d6ad, transparent 32rem),
-          var(--paper);
         color: var(--ink);
-        font:
-          16px/1.55 Georgia,
-          serif;
+        background: var(--paper);
+        font-family: Georgia, "Times New Roman", serif;
+        line-height: 1.5;
       }
-      main {
-        max-width: 980px;
-        margin: 0 auto;
-        padding: 48px 20px 80px;
+      header {
+        padding: 3.5rem max(1.25rem, calc((100vw - 1100px) / 2));
+        background: #183d43;
+        color: #fffdf8;
+        border-bottom: 8px solid var(--coral);
       }
-      h1,
-      h2,
-      h3,
+      .eyebrow,
+      .tag,
       button,
-      input {
+      label,
+      .log,
+      .note,
+      summary {
         font-family: "Trebuchet MS", sans-serif;
+      }
+      .eyebrow {
+        color: #f2c14e;
+        font-size: 0.78rem;
+        font-weight: bold;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
       }
       h1 {
         max-width: 720px;
-        margin: 0 0 12px;
-        font-size: clamp(2.4rem, 7vw, 5rem);
-        line-height: 0.98;
-        letter-spacing: 0;
+        margin: 0.4rem 0 1rem;
+        font-size: clamp(2.5rem, 7vw, 5.8rem);
+        line-height: 0.95;
+        font-weight: normal;
       }
-      h2 {
-        margin: 0 0 8px;
-        font-size: 1.45rem;
-      }
-      h3 {
-        margin-bottom: 4px;
-      }
-      .intro {
-        max-width: 700px;
-        color: var(--muted);
+      header p {
+        max-width: 650px;
+        margin: 0;
+        color: #d6e3df;
         font-size: 1.1rem;
       }
-      section {
-        margin-top: 28px;
-        padding: 24px;
-        background: color-mix(in srgb, var(--panel) 90%, transparent);
-        border: 1px solid var(--line);
-        border-left: 5px solid var(--accent);
-        border-radius: 8px;
-        box-shadow: 0 8px 24px #503c2410;
+      main {
+        width: min(1100px, calc(100% - 2.5rem));
+        margin: 2rem auto 5rem;
       }
-      .hint {
-        margin: 4px 0 16px;
+      .intro {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 1.5rem;
+        align-items: end;
+        margin-bottom: 2rem;
+      }
+      h2 {
+        margin: 0 0 0.55rem;
+        font-size: 2rem;
+        font-weight: normal;
+      }
+      h3 {
+        margin: 0 0 0.45rem;
+        font-size: 1.3rem;
+      }
+      .intro p,
+      .card p {
         color: var(--muted);
+        margin-top: 0;
       }
-      .row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        align-items: center;
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        padding: 1.25rem;
+        box-shadow: var(--shadow);
+      }
+      .card.wide {
+        grid-column: span 2;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+      }
+      .tag {
+        display: inline-block;
+        padding: 0.2rem 0.45rem;
+        margin-bottom: 0.7rem;
+        color: #fff;
+        background: var(--teal);
+        font-size: 0.7rem;
+        font-weight: bold;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      button,
+      input,
+      select {
+        font: inherit;
       }
       button {
         border: 0;
         border-radius: 4px;
-        padding: 10px 14px;
-        background: var(--accent);
-        color: white;
+        padding: 0.65rem 0.8rem;
+        color: #fff;
+        background: var(--coral);
         cursor: pointer;
         font-weight: bold;
       }
       button:hover {
-        background: var(--accent-dark);
+        background: #c9503c;
       }
       button.secondary {
-        background: #52616b;
+        color: var(--ink);
+        background: #e6eee9;
       }
-      input {
-        min-width: 180px;
-        padding: 9px;
+      button:focus-visible,
+      input:focus-visible,
+      select:focus-visible {
+        outline: 3px solid var(--yellow);
+        outline-offset: 2px;
+      }
+      .stage {
+        min-height: 105px;
+        padding: 1rem;
+        margin: 0.8rem 0;
+        background: #edf2ed;
+        border: 1px dashed #9eb5aa;
+      }
+      .outer {
+        padding: 1rem;
+        background: #d9ebe5;
+      }
+      .inner {
+        padding: 1rem;
+        background: #f8d4c7;
+        text-align: center;
+      }
+      .controls,
+      form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+        align-items: center;
+      }
+      input,
+      select {
+        min-width: 0;
+        padding: 0.62rem 0.7rem;
         border: 1px solid var(--line);
         border-radius: 4px;
-        background: white;
+        background: #fff;
       }
-      pre,
-      output {
-        display: block;
-        width: 100%;
-        min-height: 44px;
-        margin: 16px 0 0;
-        padding: 14px;
-        overflow-x: auto;
-        white-space: pre-wrap;
-        background: var(--code);
-        color: #d9f5d0;
+      .log {
+        min-height: 45px;
+        max-height: 180px;
+        overflow: auto;
+        padding: 0.65rem;
+        margin-top: 0.8rem;
+        color: #dff3ed;
+        background: #18232b;
         border-radius: 4px;
-        font:
-          14px/1.5 Monaco,
-          Consolas,
-          monospace;
+        font-size: 0.78rem;
+        white-space: pre-wrap;
       }
-      progress {
-        width: 100%;
-        height: 20px;
-        accent-color: var(--accent);
+      .log span {
+        display: block;
+        padding: 0.13rem 0;
+        border-bottom: 1px solid #31434a;
       }
-      .grid {
+      .drag-zone {
+        position: relative;
+        height: 145px;
+        overflow: hidden;
+        background: #f4ead0;
+        border: 1px dashed #c6aa67;
+      }
+      #dragToken {
+        position: absolute;
+        left: 1rem;
+        top: 3.5rem;
+        width: 74px;
+        height: 55px;
+        border-radius: 50%;
+        color: #fff;
+        background: var(--coral);
+        cursor: grab;
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-        gap: 18px;
+        place-items: center;
+        user-select: none;
+        touch-action: none;
       }
-      code {
-        color: var(--accent-dark);
+      #dragToken.dragging {
+        cursor: grabbing;
+        background: var(--teal);
       }
-      .tag {
-        display: inline-block;
-        padding: 3px 7px;
-        background: #f2dfc5;
-        color: var(--accent-dark);
-        font: bold 12px sans-serif;
-        text-transform: uppercase;
+      .key-display {
+        min-height: 55px;
+        display: grid;
+        place-items: center;
+        margin: 0.8rem 0;
+        background: #18232b;
+        color: #f2c14e;
+        font:
+          bold 1.5rem "Trebuchet MS",
+          sans-serif;
       }
-      @media (max-width: 600px) {
-        section {
-          padding: 18px;
+      .selection-box {
+        padding: 0.8rem;
+        background: #f2e9dc;
+        user-select: text;
+      }
+      .status {
+        min-height: 1.5rem;
+        color: var(--teal);
+        font-family: "Trebuchet MS", sans-serif;
+        font-size: 0.9rem;
+      }
+      details {
+        margin-top: 0.8rem;
+        border-top: 1px solid var(--line);
+        padding-top: 0.7rem;
+      }
+      summary {
+        cursor: pointer;
+        color: var(--teal);
+        font-size: 0.85rem;
+        font-weight: bold;
+      }
+      footer {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 1.25rem 3rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+      @media (max-width: 760px) {
+        .intro,
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        .card.wide {
+          grid-column: span 1;
+        }
+        header {
+          padding-top: 2.5rem;
         }
       }
     </style>
   </head>
   <body>
-    <main>
-      <span class="tag">Day 6 / Browser networking</span>
-      <h1>Requests are conversations.</h1>
-      <p class="intro">
-        Run each example, read the request and response, then change the code in
-        this file. Open DevTools → Network when you want to see the same
-        conversation in detail.
+    <header>
+      <div class="eyebrow">Day 6 / JavaScript</div>
+      <h1>Events are the browser talking to your code.</h1>
+      <p>
+        Interact with each small experiment. Read the timeline after every
+        action. The visible event log is the lesson.
       </p>
+    </header>
 
-      <section>
-        <h2>1. Fetch: the modern promise-based request</h2>
-        <p class="hint">
-          <code>fetch()</code> resolves when headers arrive. Read the body with
-          <code>response.json()</code> or <code>response.text()</code>, and
-          check <code>response.ok</code> yourself.
-        </p>
-        <button onclick="runFetch()">GET JSON with fetch</button>
-        <output id="fetchOutput">Nothing requested yet.</output>
+    <main>
+      <section class="intro">
+        <div>
+          <h2>Event laboratory</h2>
+          <p>
+            Every panel answers three questions: what happened, which object
+            received it, and why would we use this in a real interface?
+          </p>
+        </div>
+        <div class="card">
+          <strong>Event recipe</strong>
+          <p>
+            <code>element.addEventListener(type, handler)</code> listens without
+            replacing other listeners.
+          </p>
+        </div>
       </section>
 
-      <section>
-        <h2>2. FormData: send fields and a file</h2>
-        <p class="hint">
-          Do not set <code>Content-Type</code> manually. The browser adds the
-          multipart boundary for a <code>FormData</code> request.
-        </p>
-        <form id="formExample">
-          <div class="row">
-            <input name="student" value="Ada" aria-label="Student name" /><input
-              name="lessonFile"
-              type="file"
-              aria-label="Lesson file"
-            /><button>Send FormData</button>
+      <section class="grid">
+        <article class="card wide">
+          <span class="tag">01 · flow</span>
+          <h3>Capturing, target, bubbling</h3>
+          <p>
+            Click the center. The event travels down during capture, reaches the
+            target, then bubbles back up. The third button stops the trip.
+          </p>
+          <div class="stage outer" id="outerBox">
+            outer · capture and bubble
+            <div class="inner" id="innerBox">inner target</div>
           </div>
-        </form>
-        <output id="formOutput">Choose a file or submit the text field.</output>
-      </section>
+          <div class="controls">
+            <button id="stopFlow">Click with stopPropagation</button
+            ><button class="secondary" id="clearFlow">Clear flow log</button>
+          </div>
+          <div class="log" id="flowLog">Flow log appears here.</div>
+        </article>
 
-      <section>
-        <h2>3. Download progress with a readable stream</h2>
-        <p class="hint">
-          Fetch has no <code>onprogress</code>. Read chunks from
-          <code>response.body</code> and calculate progress from
-          <code>Content-Length</code>.
-        </p>
-        <button onclick="downloadWithProgress()">Download slowly</button>
-        <progress id="downloadProgress" value="0" max="100"></progress>
-        <output id="downloadOutput">0%</output>
-      </section>
+        <article class="card">
+          <span class="tag">02 · delegation</span>
+          <h3>One listener, many buttons</h3>
+          <p>
+            The list listens once. Bubbling lets it identify the button that was
+            actually clicked, including a new button added later.
+          </p>
+          <div class="controls" id="lessonList">
+            <button data-topic="mouse">Mouse</button
+            ><button data-topic="keyboard">Keyboard</button>
+          </div>
+          <button class="secondary" id="addLesson">Add a lesson button</button>
+          <div class="log" id="delegationLog">Click a lesson.</div>
+        </article>
 
-      <section>
-        <h2>4. Abort a request</h2>
-        <p class="hint">
-          An <code>AbortController</code> owns a signal. Pass that signal to
-          fetch, then call <code>controller.abort()</code>.
-        </p>
-        <div class="row">
-          <button onclick="startAbortableFetch()">Start 5-second request</button
-          ><button class="secondary" onclick="abortFetch()">Abort it</button>
-        </div>
-        <output id="abortOutput">Idle.</output>
-      </section>
+        <article class="card">
+          <span class="tag">03 · defaults</span>
+          <h3>Default action + custom event</h3>
+          <p>
+            A link normally navigates. Prevent that action, then dispatch your
+            own named event with data in <code>detail</code>.
+          </p>
+          <div class="controls">
+            <a id="safeLink" href="https://javascript.info/">Try the link</a
+            ><button id="customEvent">Dispatch lesson-complete</button>
+          </div>
+          <div class="log" id="customLog">Waiting for an action.</div>
+        </article>
 
-      <section>
-        <h2>5. Cross-Origin Requests (CORS)</h2>
-        <p class="hint">
-          The server opts into browser access with
-          <code>Access-Control-Allow-Origin</code>. CORS is enforced by
-          browsers; it is not an authentication mechanism.
-        </p>
-        <button onclick="runCors()">Fetch the CORS-enabled endpoint</button>
-        <output id="corsOutput">Nothing requested yet.</output>
-      </section>
+        <article class="card">
+          <span class="tag">04 · pointer</span>
+          <h3>Drag with pointer events</h3>
+          <p>
+            Pointer events unify mouse, touch, and pen. Pointer capture keeps
+            the drag alive even when the pointer leaves the token.
+          </p>
+          <div class="drag-zone" id="dragZone">
+            <div id="dragToken">drag me</div>
+          </div>
+          <div class="log" id="pointerLog">pointer events appear here.</div>
+        </article>
 
-      <section>
-        <h2>6. URL objects and URLSearchParams</h2>
-        <p class="hint">
-          Use URL APIs for encoding and query parameters instead of
-          concatenating strings by hand.
-        </p>
-        <div class="row">
-          <input
-            id="searchInput"
-            value="URL objects"
-            aria-label="Search term"
-          /><button onclick="runUrlExample()">Build URL and fetch</button>
-        </div>
-        <output id="urlOutput">Nothing requested yet.</output>
-      </section>
+        <article class="card">
+          <span class="tag">05 · keyboard</span>
+          <h3>Keydown, keyup, modifiers</h3>
+          <p>
+            Focus the area and press keys. <code>key</code> describes the
+            meaning; <code>code</code> describes the physical key.
+          </p>
+          <div class="key-display" id="keyArea" tabindex="0">
+            Focus me, then press a key
+          </div>
+          <div class="log" id="keyLog">Keyboard events appear here.</div>
+        </article>
 
-      <section>
-        <h2>7. XMLHttpRequest: the older event-based API</h2>
-        <p class="hint">
-          XHR is still useful when you need upload progress. Its lifecycle is
-          callback/event based rather than promise based.
-        </p>
-        <button onclick="runXhr()">GET JSON with XHR</button>
-        <output id="xhrOutput">Nothing requested yet.</output>
-      </section>
+        <article class="card wide">
+          <span class="tag">06 · forms</span>
+          <h3>Input, change, focus, blur, submit</h3>
+          <p>
+            <code>input</code> is live, <code>change</code> is committed, and
+            <code>submit</code> works for both clicking and pressing Enter. The
+            default navigation is prevented.
+          </p>
+          <form id="lessonForm">
+            <input
+              id="nameInput"
+              name="name"
+              placeholder="Type your name"
+              required
+            /><select id="levelInput" name="level">
+              <option>Beginner</option>
+              <option>Practising</option></select
+            ><button>Submit form</button>
+          </form>
+          <div class="status" id="formStatus"></div>
+          <div class="log" id="formLog">Form events appear here.</div>
+        </article>
 
-      <section>
-        <h2>8. Resumable file upload</h2>
-        <p class="hint">
-          The client creates a session, sends byte slices with an offset, and
-          asks the server for the current offset before continuing.
-        </p>
-        <input
-          id="resumeFile"
-          type="file"
-          aria-label="File to upload in chunks"
-        />
-        <button onclick="resumeUpload()">Upload in 64 KB chunks</button>
-        <progress id="uploadProgress" value="0" max="100"></progress>
-        <output id="uploadOutput">Choose a file to begin.</output>
-      </section>
+        <article class="card">
+          <span class="tag">07 · loading</span>
+          <h3>DOMContentLoaded and resource errors</h3>
+          <p>
+            The page is ready after HTML parsing. Resources can separately
+            succeed or fail, which is where loading states and fallbacks belong.
+          </p>
+          <button id="loadImage">Load a resource</button>
+          <div class="status" id="loadStatus">Page DOM is ready.</div>
+          <div class="log" id="loadLog">Resource events appear here.</div>
+        </article>
 
-      <!--
-      <section>
-        <h2>Earlier Day 6 examples</h2>
-        <p class="hint">These use different browser communication models: WebSocket is two-way, while SSE is server-to-browser.</p>
-        <div class="grid"><div><button onclick="connectWebSocket()">Connect WebSocket</button><button onclick="sendMessage()">Send message</button><button class="secondary" onclick="disconnectWebSocket()">Disconnect</button></div><div><button onclick="connectSSE()">Connect SSE</button><button class="secondary" onclick="disconnectSSE()">Disconnect</button></div></div>
-        <output id="liveOutput">No live connection activity yet.</output>
+        <article class="card">
+          <span class="tag">08 · observer</span>
+          <h3>MutationObserver</h3>
+          <p>
+            This watches DOM changes, not user clicks. Add a row and the
+            observer reports the mutation.
+          </p>
+          <button id="addRow">Add DOM row</button>
+          <div id="mutationTarget" class="stage">Rows will appear here.</div>
+          <div class="log" id="mutationLog">Mutations appear here.</div>
+        </article>
+
+        <article class="card">
+          <span class="tag">09 · selection</span>
+          <h3>Selection and Range</h3>
+          <p>
+            Select some words below, then read the browser's current selection.
+            This is the foundation of highlights and editor tools.
+          </p>
+          <div class="selection-box" id="selectionText">
+            Select a phrase in this sentence to inspect the Selection object.
+          </div>
+          <button id="inspectSelection">Inspect selection</button>
+          <div class="log" id="selectionLog">
+            Selection details appear here.
+          </div>
+        </article>
+
+        <article class="card">
+          <span class="tag">10 · event loop</span>
+          <h3>Sync, microtask, task</h3>
+          <p>
+            Promise callbacks (microtasks) run after current code but before
+            timer callbacks (tasks). Predict the order, then check it.
+          </p>
+          <button id="runLoop">Run ordering experiment</button>
+          <div class="log" id="loopLog">The order will appear here.</div>
+        </article>
       </section>
-      -->
     </main>
+    <footer>
+      Repeat an experiment, change one line in the code, and observe how the
+      timeline changes. That is the fastest way to make events feel predictable.
+    </footer>
+
     <script>
       const $ = (id) => document.getElementById(id);
-      const show = (id, value) => {
-        $(id).textContent =
-          typeof value === "string" ? value : JSON.stringify(value, null, 2);
+      const write = (id, message) => {
+        const log = $(id);
+        log.innerHTML =
+          "<span>" +
+          message +
+          "</span>" +
+          log.innerHTML.replace("<span>" + log.textContent + "</span>", "");
       };
-      let abortController;
+      const clear = (id, message = "") => {
+        $(id).textContent = message;
+      };
 
-      async function runFetch() {
-        const response = await fetch("/api/data");
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        show("fetchOutput", await response.json());
-      }
+      const flowHandler = (name, phase) => (event) =>
+        write("flowLog", `${name} / ${phase} | target: ${event.target.id}`);
+      $("outerBox").addEventListener(
+        "click",
+        flowHandler("outer", "capture"),
+        true,
+      );
+      $("innerBox").addEventListener("click", flowHandler("inner", "target"));
+      $("outerBox").addEventListener("click", flowHandler("outer", "bubble"));
+      $("stopFlow").addEventListener("click", (event) => {
+        event.stopPropagation();
+        write("flowLog", "button / propagation stopped");
+      });
+      $("clearFlow").addEventListener("click", () =>
+        clear("flowLog", "Flow log cleared."),
+      );
 
-      $("formExample").addEventListener("submit", async (event) => {
-        event.preventDefault();
-        const response = await fetch("/api/form", {
-          method: "POST",
-          body: new FormData(event.currentTarget),
-        });
-        show("formOutput", await response.json());
+      $("lessonList").addEventListener("click", (event) => {
+        const button = event.target.closest("button");
+        if (button)
+          write("delegationLog", `list handled ${button.dataset.topic}`);
+      });
+      $("addLesson").addEventListener("click", () => {
+        const button = document.createElement("button");
+        button.dataset.topic = "dynamic";
+        button.textContent = "Dynamic lesson";
+        $("lessonList").append(button);
+        write("delegationLog", "new button added");
       });
 
-      async function downloadWithProgress() {
-        const response = await fetch("/api/download");
-        const total = Number(response.headers.get("Content-Length"));
-        const reader = response.body.getReader();
-        let received = 0;
-        let text = "";
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          received += value.length;
-          text += new TextDecoder().decode(value);
-          $("downloadProgress").value = (received / total) * 100;
-          show(
-            "downloadOutput",
-            `${Math.round((received / total) * 100)}%\n${text}`,
-          );
-        }
-      }
+      $("safeLink").addEventListener("click", (event) => {
+        event.preventDefault();
+        write("customLog", "default navigation prevented");
+      });
+      document.addEventListener("lesson-complete", (event) =>
+        write("customLog", `custom event received: ${event.detail.topic}`),
+      );
+      $("customEvent").addEventListener("click", () =>
+        document.dispatchEvent(
+          new CustomEvent("lesson-complete", { detail: { topic: "events" } }),
+        ),
+      );
 
-      async function startAbortableFetch() {
-        abortController = new AbortController();
-        show("abortOutput", "Request started...");
-        try {
-          const response = await fetch("/api/slow", {
-            signal: abortController.signal,
-          });
-          show("abortOutput", await response.json());
-        } catch (error) {
-          show(
-            "abortOutput",
-            error.name === "AbortError"
-              ? "Request was aborted."
-              : error.message,
-          );
-        }
-      }
-      function abortFetch() {
-        if (abortController) abortController.abort();
-      }
+      let dragging = false;
+      $("dragToken").addEventListener("pointerdown", (event) => {
+        dragging = true;
+        event.currentTarget.setPointerCapture(event.pointerId);
+        event.currentTarget.classList.add("dragging");
+        write("pointerLog", `down: ${event.pointerType}`);
+      });
+      $("dragToken").addEventListener("pointermove", (event) => {
+        if (!dragging) return;
+        const zone = $("dragZone").getBoundingClientRect();
+        const token = event.currentTarget;
+        token.style.left = `${Math.max(0, Math.min(event.clientX - zone.left - 37, zone.width - 74))}px`;
+        token.style.top = `${Math.max(0, Math.min(event.clientY - zone.top - 27, zone.height - 55))}px`;
+      });
+      $("dragToken").addEventListener("pointerup", (event) => {
+        dragging = false;
+        event.currentTarget.releasePointerCapture(event.pointerId);
+        event.currentTarget.classList.remove("dragging");
+        write("pointerLog", "up: drag finished");
+      });
 
-      async function runCors() {
-        show("corsOutput", await (await fetch("/api/cors")).json());
-      }
-      async function runUrlExample() {
-        const url = new URL("/api/search", location.origin);
-        url.searchParams.set("query", $("searchInput").value);
-        show(
-          "urlOutput",
-          `${url}\n\n${JSON.stringify(await (await fetch(url)).json(), null, 2)}`,
+      $("keyArea").addEventListener("keydown", (event) => {
+        event.preventDefault();
+        $("keyArea").textContent = event.key;
+        write(
+          "keyLog",
+          `down: key=${event.key}, code=${event.code}, shift=${event.shiftKey}`,
         );
-      }
+      });
+      $("keyArea").addEventListener("keyup", (event) =>
+        write("keyLog", `up: ${event.key}`),
+      );
 
-      function runXhr() {
-        const xhr = new XMLHttpRequest();
-        xhr.open("GET", "/api/data");
-        xhr.onload = () => show("xhrOutput", JSON.parse(xhr.responseText));
-        xhr.onerror = () => show("xhrOutput", "Network error");
-        xhr.send();
-      }
+      $("nameInput").addEventListener("focus", () => write("formLog", "focus"));
+      $("nameInput").addEventListener("blur", () => write("formLog", "blur"));
+      $("nameInput").addEventListener("input", (event) => {
+        $("formStatus").textContent = `Live value: ${event.target.value}`;
+        write("formLog", "input");
+      });
+      $("levelInput").addEventListener("change", (event) =>
+        write("formLog", `change: ${event.target.value}`),
+      );
+      $("lessonForm").addEventListener("submit", (event) => {
+        event.preventDefault();
+        $("formStatus").textContent =
+          `Submitted ${$("nameInput").value || "the learner"}`;
+        write("formLog", "submit (default prevented)");
+      });
 
-      async function resumeUpload() {
-        const file = $("resumeFile").files[0];
-        if (!file) return show("uploadOutput", "Select a file first.");
-        const session = await (
-          await fetch("/api/upload/start", { method: "POST" })
-        ).json();
-        let offset = session.offset;
-        const chunkSize = 64 * 1024;
-        while (offset < file.size) {
-          const chunk = file.slice(offset, offset + chunkSize);
-          const response = await fetch(`/api/upload/${session.id}`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/octet-stream",
-              "X-Start-Byte": String(offset),
-            },
-            body: chunk,
-          });
-          if (!response.ok) throw new Error(await response.text());
-          offset = (await response.json()).offset;
-          $("uploadProgress").value = (offset / file.size) * 100;
-          show("uploadOutput", `${offset} / ${file.size} bytes uploaded`);
-        }
-        show("uploadOutput", `Complete: ${file.name} (${file.size} bytes)`);
-      }
+      window.addEventListener(
+        "DOMContentLoaded",
+        () =>
+          ($("loadStatus").textContent =
+            "DOMContentLoaded fired: HTML is ready."),
+      );
+      $("loadImage").addEventListener("click", () => {
+        const image = new Image();
+        image.addEventListener("load", () => {
+          $("loadStatus").textContent = "Resource loaded successfully.";
+          write("loadLog", "load");
+        });
+        image.addEventListener("error", () => {
+          $("loadStatus").textContent = "Resource failed: show a fallback.";
+          write("loadLog", "error");
+        });
+        image.src = "missing-learning-image.png";
+      });
 
-      /* let socket; let eventSource;
-      function live(message) { $("liveOutput").textContent += `${new Date().toLocaleTimeString()} ${message}\n`; }
-      function connectWebSocket() { socket = new WebSocket(`ws://${location.host}`); socket.onopen = () => live("WebSocket connected"); socket.onmessage = (event) => live(`WebSocket: ${event.data}`); socket.onclose = () => live("WebSocket closed"); }
-      function sendMessage() { if (socket?.readyState === WebSocket.OPEN) socket.send("Hello from the browser"); else live("Connect WebSocket first"); }
-      function disconnectWebSocket() { socket?.close(); }
-      function connectSSE() { eventSource = new EventSource("/events"); eventSource.onmessage = (event) => live(`SSE: ${event.data}`); eventSource.onerror = () => live("SSE error or disconnected"); }
-      function disconnectSSE() { eventSource?.close(); eventSource = null; live("SSE closed"); }
-      */
+      const observer = new MutationObserver((mutations) =>
+        write("mutationLog", `${mutations.length} DOM mutation observed`),
+      );
+      observer.observe($("mutationTarget"), { childList: true, subtree: true });
+      $("addRow").addEventListener("click", () => {
+        const row = document.createElement("div");
+        row.textContent = `Row ${$("mutationTarget").children.length + 1}`;
+        $("mutationTarget").append(row);
+      });
+
+      $("inspectSelection").addEventListener("click", () => {
+        const selection = window.getSelection();
+        write(
+          "selectionLog",
+          `text: "${selection.toString() || "nothing selected"}" | ranges: ${selection.rangeCount}`,
+        );
+      });
+      $("runLoop").addEventListener("click", () => {
+        clear("loopLog");
+        write("loopLog", "sync: handler started");
+        setTimeout(() => write("loopLog", "task: setTimeout"), 0);
+        Promise.resolve().then(() =>
+          write("loopLog", "microtask: Promise.then"),
+        );
+        write("loopLog", "sync: handler ended");
+      });
     </script>
   </body>
-</html>
+</html> -->
 
-<!--
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Mouse Events Playground</title>
+
     <style>
+      * {
+        box-sizing: border-box;
+      }
+
       body {
         font-family: Arial, sans-serif;
-        max-width: 900px;
-        margin: 40px auto;
-        padding: 20px;
+        margin: 0;
+        padding: 30px;
+        background: #f4f4f4;
       }
 
-      button {
-        padding: 10px 15px;
-        margin: 5px;
-        cursor: pointer;
+      h1 {
+        margin-bottom: 10px;
       }
 
-      input {
-        padding: 10px;
-        width: 300px;
+      .description {
+        margin-bottom: 25px;
+        color: #555;
       }
 
-      .status {
-        font-size: 24px;
-        font-weight: bold;
-        margin: 20px 0;
-      }
-
-      .connected {
-        color: green;
-      }
-
-      .disconnected {
-        color: red;
-      }
-
-      .log {
-        background: #111;
-        color: #00ff00;
-        padding: 15px;
-        height: 350px;
-        overflow-y: auto;
-        font-family: monospace;
+      .container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
       }
 
       .box {
-        border: 1px solid #ccc;
-        padding: 20px;
-        margin-bottom: 20px;
+        background: white;
+        border: 3px solid #333;
+        border-radius: 12px;
+        padding: 30px;
+        min-height: 300px;
+      }
+
+      .mouse-area {
+        height: 220px;
+        border: 3px dashed #555;
         border-radius: 10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #fafafa;
+        transition: 0.2s;
+        user-select: none;
+      }
+
+      .mouse-area.active {
+        transform: scale(1.02);
+      }
+
+      button {
+        padding: 15px 25px;
+        font-size: 16px;
+        cursor: pointer;
+        border-radius: 8px;
+        border: 2px solid #333;
+        background: white;
+      }
+
+      .coordinates {
+        margin-top: 15px;
+        padding: 15px;
+        background: #eee;
+        border-radius: 8px;
+        font-family: monospace;
+        font-size: 16px;
+      }
+
+      #eventLog {
+        height: 350px;
+        overflow-y: auto;
+        background: #111;
+        color: white;
+        padding: 15px;
+        border-radius: 10px;
+        font-family: monospace;
+      }
+
+      .log {
+        padding: 6px 0;
+        border-bottom: 1px solid #333;
+      }
+
+      .important {
+        font-weight: bold;
+      }
+
+      .bubble-demo {
+        border: 3px solid #333;
+        padding: 30px;
+        border-radius: 10px;
+        background: white;
+      }
+
+      .bubble-div {
+        border: 3px solid blue;
+        padding: 30px;
+        border-radius: 10px;
+        background: #eef;
+      }
+
+      .bubble-p {
+        border: 3px solid red;
+        padding: 30px;
+        border-radius: 10px;
+        background: #fee;
+        cursor: pointer;
+      }
+
+      .output {
+        margin-top: 15px;
+        padding: 15px;
+        background: #eee;
+        border-radius: 8px;
+        font-family: monospace;
+        white-space: pre-line;
+      }
+
+      .modifier {
+        margin-top: 20px;
+        padding: 20px;
+        background: white;
+        border-radius: 10px;
+        border: 2px solid #333;
+      }
+
+      .selection-demo {
+        margin-top: 20px;
+        padding: 20px;
+        background: white;
+        border: 2px solid #333;
+        border-radius: 10px;
+      }
+
+      .danger {
+        margin-top: 10px;
+        color: #b00020;
       }
     </style>
   </head>
 
   <body>
-    <h1>WebSocket and SSE Demo</h1>
+    <h1>Mouse Events Playground</h1>
 
-    <div class="box">
-      <h2>Connection</h2>
+    <p class="description">
+      Move your mouse, click, right-click, hold buttons, and try keyboard
+      modifiers. Watch the event log.
+    </p>
 
-      <div id="status" class="status disconnected">DISCONNECTED</div>
+    <!-- ================================================= -->
+    <!-- 1. BASIC MOUSE EVENTS -->
+    <!-- ================================================= -->
 
-      <button onclick="connectWebSocket()">Connect</button>
+    <div class="container">
+      <div class="box">
+        <h2>1. Mouse Events</h2>
 
-      <button onclick="disconnectWebSocket()">Disconnect</button>
+        <div id="mouseArea" class="mouse-area">
+          Move / Click / Right-click here
+        </div>
+
+        <div class="coordinates">
+          <div>clientX: <span id="clientX">-</span></div>
+          <div>clientY: <span id="clientY">-</span></div>
+
+          <br />
+
+          <div>pageX: <span id="pageX">-</span></div>
+          <div>pageY: <span id="pageY">-</span></div>
+        </div>
+      </div>
+
+      <!-- EVENT LOG -->
+
+      <div class="box">
+        <h2>Event Log</h2>
+
+        <div id="eventLog">
+          <div class="log">Waiting for events...</div>
+        </div>
+
+        <button id="clearLog">Clear Log</button>
+      </div>
     </div>
 
-    <div class="box">
-      <h2>Send Message</h2>
+    <!-- ================================================= -->
+    <!-- 2. MOUSE BUTTON -->
+    <!-- ================================================= -->
 
-      <input id="messageInput" placeholder="Enter message" />
+    <div class="box" style="margin-top: 20px">
+      <h2>2. Which Mouse Button?</h2>
 
-      <button onclick="sendMessage()">Send</button>
+      <p>Press different mouse buttons on the button below.</p>
+
+      <button id="buttonDemo">Press Me</button>
+
+      <div id="buttonOutput" class="output">
+        Button information will appear here...
+      </div>
     </div>
 
-    <div class="box">
-      <h2>Server-Sent Events</h2>
+    <!-- ================================================= -->
+    <!-- 3. MODIFIER KEYS -->
+    <!-- ================================================= -->
 
-      <div id="sseStatus" class="status disconnected">DISCONNECTED</div>
+    <div class="modifier">
+      <h2>3. Modifier Keys</h2>
 
-      <button onclick="connectSSE()">Connect SSE</button>
+      <p>Try:</p>
 
-      <button onclick="disconnectSSE()">Disconnect SSE</button>
+      <ul>
+        <li>Normal click</li>
+        <li>Shift + click</li>
+        <li>Ctrl + click</li>
+        <li>Alt + click</li>
+        <li>Cmd + click on Mac</li>
+      </ul>
+
+      <button id="modifierButton">Try Modifier Keys</button>
+
+      <div id="modifierOutput" class="output">
+        Modifier information will appear here...
+      </div>
     </div>
 
-    <div class="box">
-      <h2>Communication Log</h2>
+    <!-- ================================================= -->
+    <!-- 4. BUBBLING -->
+    <!-- ================================================= -->
 
-      <div id="log" class="log"></div>
+    <div class="box" style="margin-top: 20px">
+      <h2>4. Event Bubbling</h2>
+
+      <p>Click the P element. Watch the event bubble upward.</p>
+
+      <div id="formDemo" class="bubble-demo">
+        FORM
+
+        <div id="divDemo" class="bubble-div">
+          DIV
+
+          <p id="pDemo" class="bubble-p">P — CLICK ME</p>
+        </div>
+      </div>
+
+      <div id="bubbleOutput" class="output">Click P...</div>
+    </div>
+
+    <!-- ================================================= -->
+    <!-- 5. STOP PROPAGATION -->
+    <!-- ================================================= -->
+
+    <div class="box" style="margin-top: 20px">
+      <h2>5. stopPropagation()</h2>
+
+      <p>Click the button. The event will stop before reaching the DIV.</p>
+
+      <div id="stopDiv" class="bubble-div">
+        DIV
+
+        <button id="stopButton">Stop Bubbling</button>
+      </div>
+
+      <div id="stopOutput" class="output">Click the button...</div>
+    </div>
+
+    <!-- ================================================= -->
+    <!-- 6. TEXT SELECTION -->
+    <!-- ================================================= -->
+
+    <div class="selection-demo">
+      <h2>6. Prevent Selection on mousedown</h2>
+
+      <p>Normally, double-clicking this text selects it:</p>
+
+      <p>
+        <b> Double-click this text normally </b>
+      </p>
+
+      <p>This one prevents the default mousedown behavior:</p>
+
+      <p>
+        <b id="noSelect"> Double-click this text </b>
+      </p>
+
+      <p class="danger">
+        Try dragging across both texts and compare the behavior.
+      </p>
     </div>
 
     <script>
-      // ============================================================
-      // WEBSOCKET VARIABLE
-      // ============================================================
+      // =====================================================
+      // GET ELEMENTS
+      // =====================================================
 
-      let socket = null;
-      let eventSource = null;
+      const mouseArea = document.getElementById("mouseArea");
 
-      // ============================================================
-      // CONNECT
-      // ============================================================
+      const eventLog = document.getElementById("eventLog");
 
-      function connectWebSocket() {
-        // Don't create another connection
-        if (socket && socket.readyState === WebSocket.OPEN) {
-          log("Already connected");
+      const clearLog = document.getElementById("clearLog");
 
-          return;
-        }
+      const clientX = document.getElementById("clientX");
+      const clientY = document.getElementById("clientY");
 
-        log("→ Creating WebSocket connection...");
+      const pageX = document.getElementById("pageX");
+      const pageY = document.getElementById("pageY");
 
-        // --------------------------------------------------------
-        // THIS STARTS THE WHOLE PROCESS
-        // --------------------------------------------------------
+      // =====================================================
+      // HELPER FUNCTION
+      // =====================================================
 
-        socket = new WebSocket("ws://localhost:3000");
+      function logEvent(message) {
+        const div = document.createElement("div");
 
-        // --------------------------------------------------------
-        // CONNECTION OPENED
-        // --------------------------------------------------------
+        div.className = "log";
 
-        socket.onopen = () => {
-          log("✓ WebSocket connection OPEN");
+        div.textContent = new Date().toLocaleTimeString() + " → " + message;
 
-          const status = document.getElementById("status");
+        eventLog.appendChild(div);
 
-          status.textContent = "CONNECTED";
-
-          status.className = "status connected";
-        };
-
-        // --------------------------------------------------------
-        // SERVER SENT MESSAGE
-        // --------------------------------------------------------
-
-        socket.onmessage = (event) => {
-          log("← Server: " + event.data);
-        };
-
-        // --------------------------------------------------------
-        // CONNECTION CLOSED
-        // --------------------------------------------------------
-
-        socket.onclose = () => {
-          log("✕ WebSocket connection CLOSED");
-
-          const status = document.getElementById("status");
-
-          status.textContent = "DISCONNECTED";
-
-          status.className = "status disconnected";
-        };
-
-        // --------------------------------------------------------
-        // ERROR
-        // --------------------------------------------------------
-
-        socket.onerror = (error) => {
-          log("⚠ WebSocket error");
-        };
+        eventLog.scrollTop = eventLog.scrollHeight;
       }
 
-      // ============================================================
-      // SEND MESSAGE
-      // ============================================================
+      // =====================================================
+      // MOUSEOVER
+      // =====================================================
 
-      function sendMessage() {
-        if (!socket || socket.readyState !== WebSocket.OPEN) {
-          log("⚠ WebSocket is not connected");
+      mouseArea.addEventListener("mouseover", function (event) {
+        mouseArea.classList.add("active");
 
-          return;
+        logEvent("mouseover");
+      });
+
+      // =====================================================
+      // MOUSEOUT
+      // =====================================================
+
+      mouseArea.addEventListener("mouseout", function (event) {
+        mouseArea.classList.remove("active");
+
+        logEvent("mouseout");
+      });
+
+      // =====================================================
+      // MOUSEMOVE
+      // =====================================================
+
+      mouseArea.addEventListener("mousemove", function (event) {
+        clientX.textContent = event.clientX;
+        clientY.textContent = event.clientY;
+
+        pageX.textContent = event.pageX;
+        pageY.textContent = event.pageY;
+      });
+
+      // =====================================================
+      // MOUSEDOWN
+      // =====================================================
+
+      mouseArea.addEventListener("mousedown", function (event) {
+        logEvent("mousedown → button = " + event.button);
+      });
+
+      // =====================================================
+      // MOUSEUP
+      // =====================================================
+
+      mouseArea.addEventListener("mouseup", function (event) {
+        logEvent("mouseup → button = " + event.button);
+      });
+
+      // =====================================================
+      // CLICK
+      // =====================================================
+
+      mouseArea.addEventListener("click", function (event) {
+        logEvent("click");
+      });
+
+      // =====================================================
+      // DOUBLE CLICK
+      // =====================================================
+
+      mouseArea.addEventListener("dblclick", function (event) {
+        logEvent("dblclick");
+      });
+
+      // =====================================================
+      // CONTEXT MENU
+      // =====================================================
+
+      mouseArea.addEventListener("contextmenu", function (event) {
+        logEvent("contextmenu → right click");
+
+        // Prevent browser's normal right-click menu
+
+        event.preventDefault();
+      });
+
+      // =====================================================
+      // CLEAR LOG
+      // =====================================================
+
+      clearLog.addEventListener("click", function () {
+        eventLog.innerHTML = "";
+      });
+
+      // =====================================================
+      // BUTTON PROPERTY DEMO
+      // =====================================================
+
+      const buttonDemo = document.getElementById("buttonDemo");
+
+      const buttonOutput = document.getElementById("buttonOutput");
+
+      buttonDemo.addEventListener("mousedown", function (event) {
+        let buttonName;
+
+        if (event.button === 0) {
+          buttonName = "LEFT";
+        } else if (event.button === 1) {
+          buttonName = "MIDDLE";
+        } else if (event.button === 2) {
+          buttonName = "RIGHT";
+        } else {
+          buttonName = "OTHER";
         }
 
-        const input = document.getElementById("messageInput");
+        buttonOutput.textContent =
+          "event.button = " +
+          event.button +
+          "\n" +
+          "Mouse button = " +
+          buttonName;
+      });
 
-        const message = input.value;
+      // =====================================================
+      // MODIFIER KEYS
+      // =====================================================
 
-        if (!message) {
-          return;
-        }
+      const modifierButton = document.getElementById("modifierButton");
 
-        // --------------------------------------------------------
-        // SEND MESSAGE THROUGH WEBSOCKET
-        // --------------------------------------------------------
+      const modifierOutput = document.getElementById("modifierOutput");
 
-        socket.send(message);
+      modifierButton.addEventListener("click", function (event) {
+        modifierOutput.textContent =
+          "shiftKey = " +
+          event.shiftKey +
+          "\n" +
+          "ctrlKey  = " +
+          event.ctrlKey +
+          "\n" +
+          "altKey   = " +
+          event.altKey +
+          "\n" +
+          "metaKey  = " +
+          event.metaKey;
+      });
 
-        log("→ Browser: " + message);
+      // =====================================================
+      // BUBBLING DEMO
+      // =====================================================
 
-        input.value = "";
-      }
+      const formDemo = document.getElementById("formDemo");
 
-      // ============================================================
-      // DISCONNECT
-      // ============================================================
+      const divDemo = document.getElementById("divDemo");
 
-      function disconnectWebSocket() {
-        if (!socket) {
-          return;
-        }
+      const pDemo = document.getElementById("pDemo");
 
-        log("→ Closing WebSocket connection...");
+      const bubbleOutput = document.getElementById("bubbleOutput");
 
-        socket.close();
-      }
+      formDemo.addEventListener("click", function (event) {
+        bubbleOutput.textContent +=
+          "\nFORM handler executed" +
+          "\n  target = " +
+          event.target.tagName +
+          "\n  currentTarget = " +
+          event.currentTarget.id;
+      });
 
-      // ============================================================
-      // SERVER-SENT EVENTS
-      // ============================================================
+      divDemo.addEventListener("click", function (event) {
+        bubbleOutput.textContent +=
+          "\nDIV handler executed" +
+          "\n  target = " +
+          event.target.tagName +
+          "\n  currentTarget = " +
+          event.currentTarget.id;
+      });
 
-      function connectSSE() {
-        if (eventSource) {
-          log("SSE is already connected");
+      pDemo.addEventListener("click", function (event) {
+        bubbleOutput.textContent =
+          "P handler executed" +
+          "\n  target = " +
+          event.target.tagName +
+          "\n  currentTarget = " +
+          event.currentTarget.id;
+      });
 
-          return;
-        }
+      // =====================================================
+      // STOP PROPAGATION
+      // =====================================================
 
-        log("→ Creating SSE connection...");
+      const stopDiv = document.getElementById("stopDiv");
 
-        eventSource = new EventSource("http://localhost:3000/events");
+      const stopButton = document.getElementById("stopButton");
 
-        eventSource.onopen = () => {
-          log("✓ SSE connection OPEN");
+      const stopOutput = document.getElementById("stopOutput");
 
-          const status = document.getElementById("sseStatus");
-          status.textContent = "CONNECTED";
-          status.className = "status connected";
-        };
+      stopDiv.addEventListener("click", function (event) {
+        stopOutput.textContent += "\nDIV handler executed";
+      });
 
-        eventSource.onmessage = (event) => {
-          log("← SSE server: " + event.data);
-        };
+      stopButton.addEventListener("click", function (event) {
+        stopOutput.textContent =
+          "BUTTON handler executed" + "\nstopPropagation() called";
 
-        eventSource.onerror = () => {
-          log("⚠ SSE connection error");
-        };
-      }
+        event.stopPropagation();
+      });
 
-      function disconnectSSE() {
-        if (!eventSource) {
-          return;
-        }
+      // =====================================================
+      // PREVENT DEFAULT SELECTION
+      // =====================================================
 
-        eventSource.close();
-        eventSource = null;
+      const noSelect = document.getElementById("noSelect");
 
-        log("✕ SSE connection CLOSED");
-
-        const status = document.getElementById("sseStatus");
-        status.textContent = "DISCONNECTED";
-        status.className = "status disconnected";
-      }
-
-      // ============================================================
-      // LOG
-      // ============================================================
-
-      function log(message) {
-        const logElement = document.getElementById("log");
-
-        const time = new Date().toLocaleTimeString();
-
-        logElement.innerHTML += `[${time}] ${message}<br>`;
-
-        logElement.scrollTop = logElement.scrollHeight;
-      }
+      noSelect.addEventListener("mousedown", function (event) {
+        event.preventDefault();
+      });
     </script>
   </body>
 </html>
--->
