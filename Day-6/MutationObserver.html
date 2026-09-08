@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+  <head>
+    <title>MutationObserver - Third Party Demo</title>
+  </head>
+
+  <body>
+    <h1>My Website</h1>
+
+    <div id="app">
+      <p>This content belongs to my application.</p>
+    </div>
+
+    <hr />
+
+    <button id="startThirdParty">Start Third-Party Script</button>
+
+    <script>
+      // ==========================================
+      // YOUR CODE
+      // ==========================================
+
+      const app = document.getElementById("app");
+
+      // Watch the DOM
+      const observer = new MutationObserver(function (mutations) {
+        console.log("================================");
+        console.log("MUTATION DETECTED!");
+
+        for (const mutation of mutations) {
+          console.log("Type:", mutation.type);
+          console.log("Target:", mutation.target);
+
+          console.log("Added nodes:", mutation.addedNodes);
+
+          console.log("Removed nodes:", mutation.removedNodes);
+        }
+      });
+
+      // Start watching
+      observer.observe(app, {
+        childList: true,
+        subtree: true,
+      });
+
+      console.log("Your MutationObserver is watching #app");
+
+      // ==========================================
+      // SIMULATED THIRD-PARTY SCRIPT
+      // ==========================================
+
+      document
+        .getElementById("startThirdParty")
+        .addEventListener("click", function () {
+          console.log("Third-party script is running...");
+
+          // Imagine this code came from
+          // some external library.
+
+          const widget = document.createElement("div");
+
+          widget.id = "third-party-widget";
+
+          widget.innerHTML = `
+                    <h3>Third-Party Widget</h3>
+                    <p>This element was NOT created by your application.</p>
+                `;
+
+          // Third-party script modifies YOUR DOM
+
+          app.append(widget);
+
+          console.log("Third-party script added its widget!");
+        });
+    </script>
+  </body>
+</html>

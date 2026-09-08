@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Page Lifecycle Events</title>
+  </head>
+
+  <body>
+    <h1>Page Lifecycle Demo</h1>
+
+    <p>Open DevTools → Console and reload this page.</p>
+
+    <button id="btn">Click me</button>
+
+    <script>
+      console.log("Script started");
+
+      // --------------------------------
+      // 1. DOMContentLoaded
+      // --------------------------------
+
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("1. DOMContentLoaded fired");
+        console.log("DOM is completely built");
+      });
+
+      // --------------------------------
+      // 2. window.load
+      // --------------------------------
+
+      window.addEventListener("load", function () {
+        console.log("2. window.load fired");
+        console.log("Page + external resources are loaded");
+      });
+
+      // --------------------------------
+      // 3. beforeunload
+      // --------------------------------
+
+      window.addEventListener("beforeunload", function () {
+        console.log("3. beforeunload fired");
+        console.log("User is about to leave/reload the page");
+      });
+
+      // --------------------------------
+      // 4. pagehide
+      // --------------------------------
+
+      window.addEventListener("pagehide", function () {
+        console.log("4. pagehide fired");
+        console.log("Document is being hidden or unloaded");
+      });
+
+      // --------------------------------
+      // 5. readystatechange
+      // --------------------------------
+
+      document.addEventListener("readystatechange", function () {
+        console.log(
+          "5. readystatechange fired → readyState:",
+          document.readyState,
+        );
+      });
+
+      // --------------------------------
+      // Check readyState manually
+      // --------------------------------
+
+      console.log("Current readyState:", document.readyState);
+
+      // --------------------------------
+      // Normal DOM operation
+      // --------------------------------
+
+      const button = document.querySelector("#btn");
+
+      button.addEventListener("click", function () {
+        console.log("Button clicked!");
+      });
+    </script>
+  </body>
+</html>

@@ -17,7 +17,7 @@
 </html> -->
 
 
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html>
 <head>
     <title>Async Test</title>
@@ -44,4 +44,19 @@
     <h1>After Button</h1>
 
 </body>
-</html>
+</html> -->
+
+
+let script = document.createElement("script");
+
+script.src = "app.js";
+
+script.onload = function() {
+    console.log("Script loaded successfully");
+};
+
+script.onerror = function() {
+    console.log("Script failed to load");
+};
+
+document.head.append(script);

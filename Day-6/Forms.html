@@ -1,0 +1,309 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Form Properties Demo</title>
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 700px;
+        margin: 40px auto;
+        padding: 20px;
+      }
+
+      form {
+        border: 1px solid #ccc;
+        padding: 20px;
+        border-radius: 10px;
+      }
+
+      .field {
+        margin-bottom: 20px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      input,
+      select,
+      textarea {
+        padding: 8px;
+        font-size: 16px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      input[type="radio"],
+      input[type="checkbox"] {
+        width: auto;
+      }
+
+      button {
+        padding: 10px 15px;
+        margin: 5px;
+        cursor: pointer;
+      }
+
+      #output {
+        margin-top: 20px;
+        padding: 15px;
+        background: #f3f3f3;
+        white-space: pre-wrap;
+        border-radius: 8px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Form Properties Playground</h1>
+
+    <form name="userForm" id="userForm">
+      <!-- TEXT INPUT -->
+      <div class="field">
+        <label>Username</label>
+
+        <input type="text" id="usernameInput" name="username" value="John" />
+      </div>
+
+      <!-- PASSWORD -->
+      <div class="field">
+        <label>Password</label>
+
+        <input type="password" name="password" value="12345" />
+      </div>
+
+      <!-- RADIO BUTTONS -->
+      <div class="field">
+        <label>Gender</label>
+
+        <label>
+          <input type="radio" name="gender" value="male" checked />
+          Male
+        </label>
+
+        <label>
+          <input type="radio" name="gender" value="female" />
+          Female
+        </label>
+      </div>
+
+      <!-- CHECKBOX -->
+      <div class="field">
+        <label>
+          <input type="checkbox" name="terms" />
+          I accept the terms
+        </label>
+      </div>
+
+      <!-- SELECT -->
+      <div class="field">
+        <label>Country</label>
+
+        <select name="country" id="country">
+          <option value="india">India</option>
+          <option value="usa">USA</option>
+          <option value="uk">UK</option>
+        </select>
+      </div>
+
+      <!-- TEXTAREA -->
+      <div class="field">
+        <label>Message</label>
+
+        <textarea name="message" rows="4">Hello from textarea</textarea>
+      </div>
+
+      <button type="button" id="inspect">Inspect Form</button>
+
+      <button type="button" id="changeUsername">Change Username</button>
+
+      <button type="button" id="checkTerms">Check Terms</button>
+
+      <button type="button" id="selectIndia">Select India</button>
+
+      <button type="submit">Submit</button>
+    </form>
+
+    <div id="output">Click "Inspect Form"</div>
+
+    <script>
+      // ============================================
+      // GET THE FORM
+      // ============================================
+
+      let form = document.forms.userForm;
+
+      console.log("FORM:");
+      console.log(form);
+
+      // ============================================
+      // GET USERNAME
+      // ============================================
+
+      let username = form.elements.username;
+
+      console.log("Username:");
+      console.log(username);
+
+      console.log("Username value:");
+      console.log(username.value);
+
+      // ============================================
+      // SAME THING USING SHORTCUT
+      // ============================================
+
+      console.log(form.elements.username === form.username);
+
+      // true
+
+      // ============================================
+      // ELEMENT → FORM
+      // ============================================
+
+      console.log("Form from username:");
+
+      console.log(username.form);
+
+      console.log(username.form === form);
+
+      // true
+
+      // ============================================
+      // GENDER
+      // ============================================
+
+      let gender = form.elements.gender;
+
+      console.log("Gender:");
+
+      console.log(gender);
+
+      console.log("Number of gender elements:");
+
+      console.log(gender.length);
+
+      console.log("First gender:");
+
+      console.log(gender[0]);
+
+      console.log("Second gender:");
+
+      console.log(gender[1]);
+
+      // ============================================
+      // CHECKBOX
+      // ============================================
+
+      let terms = form.elements.terms;
+
+      console.log("Terms checked:");
+
+      console.log(terms.checked);
+
+      // ============================================
+      // SELECT
+      // ============================================
+
+      let country = form.elements.country;
+
+      console.log("Selected country:");
+
+      console.log(country.value);
+
+      console.log("Selected index:");
+
+      console.log(country.selectedIndex);
+
+      console.log("All options:");
+
+      console.log(country.options);
+
+      // ============================================
+      // TEXTAREA
+      // ============================================
+
+      let message = form.elements.message;
+
+      console.log("Textarea value:");
+
+      console.log(message.value);
+
+      // ============================================
+      // INSPECT BUTTON
+      // ============================================
+
+      document.getElementById("inspect").addEventListener("click", function () {
+        let gender = form.elements.gender;
+
+        let output = `
+FORM
+----
+${form}
+
+USERNAME
+--------
+value: ${form.elements.username.value}
+
+PASSWORD
+--------
+value: ${form.elements.password.value}
+
+GENDER
+------
+number of elements: ${gender.length}
+selected gender: ${gender.value}
+
+TERMS
+-----
+checked: ${form.elements.terms.checked}
+
+COUNTRY
+-------
+value: ${form.elements.country.value}
+selectedIndex: ${form.elements.country.selectedIndex}
+
+TEXTAREA
+--------
+value: ${form.elements.message.value}
+                `;
+
+        document.getElementById("output").textContent = output;
+
+        console.log("========== FORM INSPECTION ==========");
+        console.log(output);
+      });
+
+      // ============================================
+      // CHANGE USERNAME
+      // ============================================
+
+      document
+        .getElementById("changeUsername")
+        .addEventListener("click", function () {
+          form.elements.username.value = "Alex";
+        });
+
+      // ============================================
+      // CHECK TERMS
+      // ============================================
+
+      document
+        .getElementById("checkTerms")
+        .addEventListener("click", function () {
+          form.elements.terms.checked = true;
+        });
+
+      // ============================================
+      // SELECT INDIA
+      // ============================================
+
+      document
+        .getElementById("selectIndia")
+        .addEventListener("click", function () {
+          form.elements.country.value = "india";
+        });
+    </script>
+  </body>
+</html>
