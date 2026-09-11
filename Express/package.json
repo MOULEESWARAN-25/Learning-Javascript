@@ -1,0 +1,12 @@
+{
+  "name": "crud-comparison",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start:node": "node node-version/server.js",
+    "start:express": "node express-version/server.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
