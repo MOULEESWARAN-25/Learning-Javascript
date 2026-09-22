@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "learn": "node model-and-instance-methods.js",
+    "db:migrate": "sequelize-cli db:migrate",
+    "db:migrate:undo": "sequelize-cli db:migrate:undo",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

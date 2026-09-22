@@ -1,4 +1,4 @@
-const { Sequelize, DataTypes } = require("sequelize");
+const { Sequelize, DataTypes, Op } = require("sequelize");
 const sequelize = require("./db");
 
 const User = sequelize.define("User", {
@@ -61,6 +61,23 @@ async function main() {
   await User.destroy({ where: { name: "Mouleeswaran" } });
 
   await user.destroy();
-}
 
-main().catch((error) => console.error(error));
+  await User.bulkCreate([
+    { name: "abishek", email: "abishek@gmail.com" },
+    { name: "monish", email: "monish@gmail.com" },
+    { name: "kanish", email: "kanish@gmail.com" },
+  ]);
+
+  const res = await User.findAll({
+    where: {
+      id: {
+        [Op.gt]: 3,
+      },
+    },
+  });
+
+  console.log(res.map((currentUser) => currentUser.toJSON()));
+}
+main()
+  .catch((error) => console.error(error))
+  .finally(() => sequelize.close());
